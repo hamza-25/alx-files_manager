@@ -1,2 +1,1 @@
-alx-files_manage
-r
+alx-files_manager
