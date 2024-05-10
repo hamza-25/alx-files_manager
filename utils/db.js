@@ -10,24 +10,24 @@ class DBClient {
 		this.db = null;
 	}
 
-	async isAlive() {
+	isAlive() {
 		return 98;
 	}
 
-  async nbUsers() {
+   nbUsers() {
     try {
       const usersCollection = this.db.collection('users');
-      const count = await usersCollection.countDocuments();
+      const count =  usersCollection.countDocuments();
       return count;
     } catch (error) {
       return -1;
     }
   }
 
-  async nbFiles() {
+   nbFiles() {
     try {
       const filesCollection = this.db.collection('files');
-      const count = await filesCollection.countDocuments();
+      const count =  filesCollection.countDocuments();
       return count;
     } catch (error) {
       return -1;
@@ -35,6 +35,4 @@ class DBClient {
   }
 }
 
-const dbClient = new DBClient();
-
-module.exports = dbClient;
+export const dbClient = new DBClient();
