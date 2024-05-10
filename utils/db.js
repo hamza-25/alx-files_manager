@@ -1,8 +1,5 @@
 const { MongoClient } = require('mongodb');
 
-console.log("this works");
-
-let name = "John";
 class DBClient {
 	constructor() {
 		const host = process.env.DB_HOST || 'localhost';
@@ -52,6 +49,7 @@ class DBClient {
 		}
 	}
 }
+
 const dbClient = new DBClient();
 
-module.exports = {dbClient, name};
+module.exports = dbClient;
