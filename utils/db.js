@@ -39,10 +39,6 @@ class DBClient {
       return -1;
     }
   }
-
-  check = () => {
-	return "i can see db";
-  }
 }
 
 const dbClient = new DBClient();
