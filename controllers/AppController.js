@@ -11,7 +11,7 @@ const AppController = {
 
 	getStats: (req, res) => {
 		const userCount = dbClient.nbUsers();
-		const fileCount = dbClient.nnbFiles();
+		const fileCount = dbClient.nbFiles();
 
 		res.status(200).json({ users: userCount, files: fileCount });
 	},
