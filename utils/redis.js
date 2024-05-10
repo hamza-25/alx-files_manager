@@ -36,6 +36,6 @@ class RedisClient {
     await this.delAsync(key);
   }
 }
-
 const redisClient = new RedisClient();
+
 module.exports = redisClient;

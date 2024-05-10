@@ -1,5 +1,8 @@
 const { MongoClient } = require('mongodb');
 
+console.log("this works");
+
+let name = "John";
 class DBClient {
   constructor() {
     const host = process.env.DB_HOST || 'localhost';
@@ -10,15 +13,15 @@ class DBClient {
     this.db = null;
   }
 
-  async isAlive() {
-    try {
-      await this.client.connect();
-      this.db = this.client.db();
-      return true;
-    } catch (error) {
-      return false;
-    }
-  }
+	async isAlive() {
+		try {
+			await this.client.connect();
+			this.db = this.client.db();
+			return true;
+		} catch (error) {
+			return false;
+		}
+	}
 
   async nbUsers() {
     try {
@@ -40,7 +43,6 @@ class DBClient {
     }
   }
 }
-
 const dbClient = new DBClient();
 
 module.exports = dbClient;
