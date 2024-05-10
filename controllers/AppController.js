@@ -1,12 +1,12 @@
-import  dbClient from '../utils/db';
+import  {dbClient, name} from '../utils/db';
 const  redisClient = require('../utils/redis');
 
 const AppController = {
 	getStatus: (req, res) => {
 		const redisStatus = redisClient.isAlive();
-		const dbStatus = dbClient.isAlive();
+		const dbStatus = dbClient.check();
 
-		res.status(200).json({ redis: redisStatus, db: dbStatus });
+		res.status(200).json({ redis: redisStatus, db: dbStatus, name: name});
 	},
 
 	getStats: (req, res) => {
