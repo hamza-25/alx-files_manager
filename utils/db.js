@@ -10,29 +10,41 @@ class DBClient {
 		this.db = null;
 	}
 
-	isAlive() {
-		return 98;
+	async isAlive() {
+		try {
+			await this.client.connect();
+			this.db = this.client.db();
+			return true;
+		} catch (error) {
+			return false;
+		}
 	}
 
-   nbUsers() {
+  async nbUsers() {
     try {
       const usersCollection = this.db.collection('users');
-      const count =  usersCollection.countDocuments();
+      const count = await usersCollection.countDocuments();
       return count;
     } catch (error) {
       return -1;
     }
   }
 
-   nbFiles() {
+  async nbFiles() {
     try {
       const filesCollection = this.db.collection('files');
-      const count =  filesCollection.countDocuments();
+      const count = await filesCollection.countDocuments();
       return count;
     } catch (error) {
       return -1;
     }
+  }
+
+  check = () => {
+	return "i can see db";
   }
 }
 
-export const dbClient = new DBClient();
+const dbClient = new DBClient();
+
+module.exports = dbClient;
