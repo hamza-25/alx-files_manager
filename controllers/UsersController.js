@@ -1,4 +1,4 @@
-const crypto = require('crypto');
+const sha1 = require('sha1');
 const dbClient = require('../utils/db');
 
 const UsersController = {
@@ -22,19 +22,17 @@ const UsersController = {
         return;
       }
     } catch (error) {
-      throw new Error('findOne Error');
+      // throw new Error('findOne Error');
+      console.error('insertOne Error');
     }
 
-    const hashObject = crypto.createHash('sha1');
-    hashObject.update(password);
-    const hashPass = hashObject.digest('hex');
-
     try {
-      const newUser = await dbClient.client.db().collection('users').insertOne({ email, password: hashPass });
+      const newUser = await dbClient.client.db().collection('users').insertOne({ email, password: sha1(password) });
       res.status(201).json({ id: newUser.insertedId, email: newUser.ops[0].email });
       return;
     } catch (error) {
-      throw new Error('insertOne Error');
+      // throw new Error('insertOne Error');
+      console.error('insertOne Error');
     }
   },
 };
