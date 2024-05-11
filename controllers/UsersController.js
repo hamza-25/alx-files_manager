@@ -1,31 +1,38 @@
 const crypto = require('crypto');
 const dbClient = require('../utils/db');
-// const redisClient = require('../utils/redis');
 
 const UsersController = {
-  postNew: (req, res) => {
+  postNew: async (req, res) => {
     const email = req.body ? req.body.email : null;
     const password = req.body ? req.body.password : null;
-    const hashObject = crypto.createHash('sha1');
-    hashObject.update(password);
-    const hashPass = hashObject.digest('hex');
+
+    if (!password) {
+      res.status(400).json({ error: 'Missing password' });
+      return;
+    }
+    if (!email) {
+      res.status(400).json({ error: 'Missing email' });
+      return;
+    }
+
     try {
-      const user = dbClient.db.collection.findOne({ email });
-      if (!user) {
-        return res.status(400).json({ error: 'Already exist' });
+      const user = await dbClient.client.db().collection('users').findOne({ email });
+      if (user) {
+        res.status(400).json({ error: 'Already exist' });
+        return;
       }
     } catch (error) {
       throw new Error('findOne Error');
     }
-    if (!email) {
-      return res.status(400).json({ error: 'Missing email' });
-    }
-    if (!password) {
-      return res.status(400).json({ error: 'Missing password' });
-    }
+
+    const hashObject = crypto.createHash('sha1');
+    hashObject.update(password);
+    const hashPass = hashObject.digest('hex');
+
     try {
-      const newUser = dbClient.db.collection('users').insertOne({ email, password: hashPass });
-      return res.status(201).json({ id: newUser._id, email: newUser.email });
+      const newUser = await dbClient.client.db().collection('users').insertOne({ email, password: hashPass });
+      res.status(201).json({ id: newUser.insertedId, email: newUser.ops[0].email });
+      return;
     } catch (error) {
       throw new Error('insertOne Error');
     }
