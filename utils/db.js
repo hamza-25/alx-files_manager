@@ -1,26 +1,25 @@
 const { MongoClient } = require('mongodb');
 
 class DBClient {
-	constructor() {
-		const host = process.env.DB_HOST || 'localhost';
-		const port = process.env.DB_PORT || 27017;
-		const database = process.env.DB_DATABASE || 'files_manager';
+  constructor() {
+    const host = process.env.DB_HOST || 'localhost';
+    const port = process.env.DB_PORT || 27017;
+    const database = process.env.DB_DATABASE || 'files_manager';
 
-		this.client = new MongoClient(`mongodb://${host}:${port}/${database}`, { useUnifiedTopology: true });
-		// this.db = null;
+    this.client = new MongoClient(`mongodb://${host}:${port}/${database}`, { useUnifiedTopology: true });
     this.client.connect();
-	}
+  }
 
-	async isAlive() {
-		// try {
-		// 	await this.client.connect();
-		// 	this.db = this.client.db();
-		// 	return true;
-		// } catch (error) {
-		// 	return false;
-		// }
+  isAlive() {
+    // try {
+    // await this.client.connect();
+    // this.db = this.client.db();
+    // return true;
+    // } catch (error) {
+    // return false;
+    // }
     return this.client.isConnected();
-	}
+  }
 
   async nbUsers() {
     try {
@@ -42,9 +41,9 @@ class DBClient {
     }
   }
 
-  check = () => {
-	return "i can see db";
-  }
+  // check = () => {
+  // return "i can see db";
+  // }
 }
 
 const dbClient = new DBClient();
