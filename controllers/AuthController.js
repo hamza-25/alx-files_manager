@@ -22,7 +22,7 @@ const AuthController = {
       const generateToken = uuidv4();
       const key = `auth_${generateToken}`;
       redisClient.set(key, user._id.toString(), (60 * 60 * 24));
-      res.status(200).json({ token: generateToken });
+      return res.status(200).json({ token: generateToken });
     } catch (error) {
       console.error(error);
       res.status(500).json({ error: 'Internal Server Error' });

@@ -38,8 +38,10 @@ const UsersController = {
   },
   getMe: async (req, res) => {
     const xToken = req.headers['x-Token'];
+    // console.log(req.headers['x-Token']); // undefined
     const userId = await redisClient.get(`auth_${xToken}`);
     const user = await dbClient.client.db().collection('users').findOne({ id: userId });
+    // console.log(user.email);
     if (!user) {
       res.status(401).json({ error: 'Unauthorized' });
       return;
