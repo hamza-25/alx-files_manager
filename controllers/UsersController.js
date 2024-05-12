@@ -24,8 +24,8 @@ const UsersController = {
         return;
       }
     } catch (error) {
-      // throw new Error('findOne Error');
-      console.error('insertOne Error');
+      throw new Error('findOne Error');
+      // console.error('insertOne Error');
     }
 
     try {
@@ -33,15 +33,15 @@ const UsersController = {
       res.status(201).json({ id: newUser.insertedId, email: newUser.ops[0].email });
       return;
     } catch (error) {
-      // throw new Error('insertOne Error');
-      console.error('insertOne Error');
+      throw new Error('insertOne Error');
+      // console.error('insertOne Error');
     }
   },
   getMe: async (req, res) => {
     const xToken = req.headers['X-Token'.toLocaleLowerCase()];
-    console.log(req.headers['x-token']); // output: 4de7a3e5-9f74-4756-a441-c0b002b0c5c0
+    // console.log(req.headers['x-token']); // output: 4de7a3e5-9f74-4756-a441-c0b002b0c5c0
     const userId = await redisClient.get(`auth_${xToken}`);
-    console.log(userId); // output: 663f4afd6a632d2dec0cfae4
+    // console.log(userId); // output: 663f4afd6a632d2dec0cfae4
     const user = await dbClient.client.db().collection('users').findOne({ _id: ObjectId(userId) });
     // console.log(user.email);
     if (!user) {
