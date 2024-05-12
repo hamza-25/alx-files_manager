@@ -8,7 +8,7 @@ const FilesController = {
   postUpload: async (req, res) => {
     const xToken = req.headers['x-token'];
     const userId = await redisClient.get(`auth_${xToken}`);
-    const types = ['folder', 'file', 'image'];
+    // const types = ['folder', 'file', 'image'];
     const { name } = req.body;
     const { type } = req.body;
     const { data } = req.body;
@@ -59,33 +59,32 @@ const FilesController = {
           isPublic: newFile.ops[0].isPublic,
           parentId: newFile.ops[0].parentId,
         });
-      } else {
-        const path = process.env.FOLDER_PATH ? process.env.FOLDER_PATH : '/tmp/files_manager';
-        const fileName = uuidv4();
-        const newFile = await dbClient.client.db().collection('files').insertOne({
-          userId: user._id.toString(),
-          name,
-          type,
-          parentId,
-          isPublic,
-          localPath: `${path}/${fileName}`,
-        });
-
-        const content = Buffer.from(data, 'base64').toString('utf-8');
-        fs.writeFile(`${path}/${fileName}`, content, (err) => {
-          if (err) {
-            throw new Error(err);
-          }
-        });
-        res.status(201).json({
-          id: newFile.ops[0]._id,
-          userId: user._id.toString(),
-          name: newFile.ops[0].name,
-          type: newFile.ops[0].type,
-          isPublic: newFile.ops[0].isPublic,
-          parentId: newFile.ops[0].parentId,
-        });
       }
+      const path = process.env.FOLDER_PATH ? process.env.FOLDER_PATH : '/tmp/files_manager';
+      const fileName = uuidv4();
+      const newFile = await dbClient.client.db().collection('files').insertOne({
+        userId: user._id.toString(),
+        name,
+        type,
+        parentId,
+        isPublic,
+        localPath: `${path}/${fileName}`,
+      });
+
+      const content = Buffer.from(data, 'base64').toString('utf-8');
+      fs.writeFile(`${path}/${fileName}`, content, (err) => {
+        if (err) {
+          throw new Error(err);
+        }
+      });
+      return res.status(201).json({
+        id: newFile.ops[0]._id,
+        userId: user._id.toString(),
+        name: newFile.ops[0].name,
+        type: newFile.ops[0].type,
+        isPublic: newFile.ops[0].isPublic,
+        parentId: newFile.ops[0].parentId,
+      });
     } catch (error) {
       throw new Error(error);
     }
