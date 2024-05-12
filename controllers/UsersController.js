@@ -25,7 +25,6 @@ const UsersController = {
       }
     } catch (error) {
       throw new Error('findOne Error');
-      // console.error('insertOne Error');
     }
 
     try {
@@ -34,16 +33,12 @@ const UsersController = {
       return;
     } catch (error) {
       throw new Error('insertOne Error');
-      // console.error('insertOne Error');
     }
   },
   getMe: async (req, res) => {
-    const xToken = req.headers['X-Token'];
-    // console.log(req.headers['x-token']); // output: 4de7a3e5-9f74-4756-a441-c0b002b0c5c0
+    const xToken = req.headers['x-token'];
     const userId = await redisClient.get(`auth_${xToken}`);
-    // console.log(userId); // output: 663f4afd6a632d2dec0cfae4
     const user = await dbClient.client.db().collection('users').findOne({ _id: ObjectId(userId) });
-    // console.log(user.email);
     if (!user) {
       res.status(401).json({ error: 'Unauthorized' });
       return;
