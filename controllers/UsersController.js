@@ -43,7 +43,7 @@ const UsersController = {
       res.status(401).json({ error: 'Unauthorized' });
       return;
     }
-    res.status(200).json({ id: user._id, email: user.email });
+    res.json({ id: user._id, email: user.email });
   },
 };
 module.exports = UsersController;
