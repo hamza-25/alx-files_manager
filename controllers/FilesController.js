@@ -15,23 +15,23 @@ function writeFile(filePath, content) {
 
 const FilesController = {
   postUpload: async (req, res) => {
-    const xToken = req.headers['x-token'];
-    const userId = await redisClient.get(`auth_${xToken}`);
-    const TYPES = { folder: 'folder', file: 'file', image: 'image' };
-    const { name } = req.body;
-    const { type } = req.body;
-    const { data } = req.body;
-    const parentId = req.body.parentId ? req.body.parentId : 0;
-    const isPublic = req.body.isPublic ? req.body.isPublic : false;
     try {
+      const xToken = req.headers['x-token'];
+      const userId = await redisClient.get(`auth_${xToken}`);
+      const TYPES = { folder: 'folder', file: 'file', image: 'image' };
+      const name = req.body ? req.body.name : null;
+      const type = req.body ? req.body.type : null;
+      const data = req.body ? req.body.data : '';
+      const parentId = req.body.parentId ? req.body.parentId : 0;
+      const isPublic = req.body.isPublic ? req.body.isPublic : false;
+
       const user = await dbClient.client.db().collection('users').findOne({ _id: ObjectId(userId) });
 
       if (!user) {
         return res.status(401).json({ error: 'Unauthorized' });
       }
-
       if (!name) {
-        res.status(400).json({ error: 'Missing name' });
+        return res.status(400).json({ error: 'Missing name' });
       }
 
       if (!type || !Object.values(TYPES).includes(type)) {
@@ -54,13 +54,13 @@ const FilesController = {
       }
       if (type === 'folder') {
         const newFile = await dbClient.client.db().collection('files').insertOne({
-          userId: user._id.toString(),
+          userId: user._id,
           name,
           type,
           parentId,
           isPublic,
         });
-        res.status(201).json({
+        return res.status(201).json({
           id: newFile.ops[0]._id,
           userId: user._id.toString(),
           name: newFile.ops[0].name,
@@ -72,7 +72,7 @@ const FilesController = {
       const path = process.env.FOLDER_PATH ? process.env.FOLDER_PATH : '/tmp/files_manager';
       const fileName = uuidv4();
       const newFile = await dbClient.client.db().collection('files').insertOne({
-        userId: user._id.toString(),
+        userId: user._id,
         name,
         type,
         parentId,
