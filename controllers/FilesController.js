@@ -1,14 +1,23 @@
 const { ObjectId } = require('mongodb');
 const { v4: uuidv4 } = require('uuid');
 const fs = require('fs');
+const path = require('path');
 const dbClient = require('../utils/db');
 const redisClient = require('../utils/redis');
+
+function writeFile(filePath, content) {
+  const directory = path.dirname(filePath);
+  if (!fs.existsSync(directory)) {
+    fs.mkdirSync(directory, { recursive: true });
+  }
+  fs.writeFileSync(filePath, content);
+}
 
 const FilesController = {
   postUpload: async (req, res) => {
     const xToken = req.headers['x-token'];
     const userId = await redisClient.get(`auth_${xToken}`);
-    // const types = ['folder', 'file', 'image'];
+    const TYPES = { folder: 'folder', file: 'file', image: 'image' };
     const { name } = req.body;
     const { type } = req.body;
     const { data } = req.body;
@@ -25,7 +34,7 @@ const FilesController = {
         res.status(400).json({ error: 'Missing name' });
       }
 
-      if (!type) { // || !(type in types)
+      if (!type || !Object.values(TYPES).includes(type)) {
         res.status(400).json({ error: 'Missing type' });
       }
 
@@ -33,7 +42,7 @@ const FilesController = {
         res.status(400).json({ error: 'Missing data' });
       }
 
-      if (parentId) {
+      if (parentId !== 0) {
         const parentExists = await dbClient.client.db().collection('files').findOne({ _id: ObjectId(parentId) });
         if (!parentExists) {
           res.status(400).json({ error: 'Parent not found' });
@@ -72,11 +81,8 @@ const FilesController = {
       });
 
       const content = Buffer.from(data, 'base64').toString('utf-8');
-      fs.writeFile(`${path}/${fileName}`, content, (err) => {
-        if (err) {
-          throw new Error(err);
-        }
-      });
+      // write file , create path if not exists
+      writeFile(`${path}/${fileName}`, content);
       return res.status(201).json({
         id: newFile.ops[0]._id,
         userId: user._id.toString(),
