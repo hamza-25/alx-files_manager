@@ -4,6 +4,7 @@ const fs = require('fs');
 const path = require('path');
 const dbClient = require('../utils/db');
 const redisClient = require('../utils/redis');
+const { type } = require('os');
 
 function writeFile(filePath, content) {
   const directory = path.dirname(filePath);
@@ -22,7 +23,7 @@ const FilesController = {
       const name = req.body ? req.body.name : null;
       const type = req.body ? req.body.type : null;
       const data = req.body ? req.body.data : '';
-      const parentId = req.body.parentId ? req.body.parentId : 0;
+      const parentId = req.body.parentId ? req.body.parentId : -1;
       const isPublic = req.body.isPublic ? req.body.isPublic : false;
 
       const user = await dbClient.db.collection('users').findOne({ _id: ObjectId(userId) });
@@ -42,7 +43,7 @@ const FilesController = {
         res.status(400).json({ error: 'Missing data' });
       }
 
-      if (parentId !== 0) {
+      if (parentId !== -1) {
         const parentExists = await dbClient.db.collection('files').findOne({ _id: ObjectId(parentId) });
         if (!parentExists) {
           res.status(400).json({ error: 'Parent not found' });
@@ -154,7 +155,7 @@ const FilesController = {
 	  return res.status(404).json({ error: 'Not found' });
 	}
 	await dbClient.db.collection('files').updateOne({ _id: ObjectId(id) }, { $set: { isPublic: true } });
-	return res.status(200).json({ id: file._id, name: file.name, isPublic: true });
+	return res.status(200).json({ id: file._id, name: file.name, type: file.type, isPublic: true, parentId: file.parentId });
   },
   putUnpublish: async (req, res) => {
 	const { id } = req.params;
@@ -169,7 +170,7 @@ const FilesController = {
 	  return res.status(404).json({ error: 'Not found' });
 	}
 	await dbClient.db.collection('files').updateOne({ _id: ObjectId(id) }, { $set: { isPublic: false } });
-	return res.status(200).json({ id: file._id, name: file.name, isPublic: false });
+	return res.status(200).json({ id: file._id, name: file.name, file: file.type, isPublic: false, parentId: file.parentId });
   },
 };
 
