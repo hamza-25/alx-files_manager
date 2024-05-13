@@ -4,6 +4,7 @@ const fs = require('fs');
 const path = require('path');
 const dbClient = require('../utils/db');
 const redisClient = require('../utils/redis');
+const mime = require('mime-types');
 
 function writeFile(filePath, content) {
   const directory = path.dirname(filePath);
@@ -189,17 +190,24 @@ const FilesController = {
     const { id } = req.params;
     const xToken = req.headers['x-token'];
     const userId = await redisClient.get(`auth_${xToken}`);
-    const user = await dbClient.db.collection('users').findOne({ _id: ObjectId(userId) });
+    const user = await dbClient.db.collection('users').findOne({
+      _id: ObjectId(userId)
+    });
     if (!user) {
       return res.status(401).json({ error: 'Unauthorized' });
     }
-    const file = await dbClient.db.collection('files').findOne({ _id: ObjectId(id), userId: ObjectId(userId) });
-    if (!file) {
+    const file = await dbClient.db.collection('files').findOne({
+      _id: ObjectId(id),
+      userId: ObjectId(userId)
+    });
+    if (!file || file.isPublic === false || !fs.existsSync(file.localPath)) {
       return res.status(404).json({ error: 'Not found' });
     }
     if (file.type === 'folder') {
       return res.status(400).json({ error: 'A folder doesn\'t have content' });
     }
+    const mimeType = mime.contentType(file.name);
+    res.set('Content-Type', mimeType);
     return res.status(200).send(fs.readFileSync(file.localPath, 'utf-8'));
   },
 };
