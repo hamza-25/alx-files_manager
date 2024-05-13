@@ -7,10 +7,10 @@ const url = `mongodb://${host}:${port}`;
 
 class DBClient {
   constructor() {
-    this.client = new MongoClient(url, { useUnifiedTopology: true, useNewUrlParser: true});
+    this.client = new MongoClient(url, { useUnifiedTopology: true, useNewUrlParser: true });
     this.client.connect().then(
-		this.db = this.client.db(`${database}`)
-	).catch((error) => console.log(error))
+      this.db = this.client.db(`${database}`),
+    ).catch((error) => console.log(error));
   }
 
   isAlive() {
