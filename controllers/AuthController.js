@@ -33,7 +33,7 @@ const AuthController = {
     return res.status(200).json({ token: generateToken });
   },
   getDisconnect: async (req, res) => {
-    const xToken = req.header('x-token');
+    const xToken = req.header('X-Token');
     const userId = await redisClient.get(`auth_${xToken}`);
     const user = await dbClient.db.collection('users').findOne({ _id: ObjectId(userId) });
     if (!user) {
