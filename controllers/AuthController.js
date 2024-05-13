@@ -6,13 +6,15 @@ const redisClient = require('../utils/redis');
 
 const AuthController = {
   getConnect: async (req, res) => {
-    const token = req.headers.Authorization.split(' ')[1];
+    const token = req.header('Authorization').split(' ')[1];
     const email = Buffer.from(token, 'base64').toString().split(':')[0];
     const hashPassword = sha1(Buffer.from(token, 'base64').toString().split(':')[1]);
     const generateToken = uuidv4();
+    if ( !token ){  
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
     try {
       const user = await dbClient.db.collection('users').findOne({ email });
-
       if (!user) {
         return res.status(401).json({ error: 'Unauthorized' });
       }
@@ -29,7 +31,7 @@ const AuthController = {
     return res.status(200).json({ token: generateToken });
   },
   getDisconnect: async (req, res) => {
-    const xToken = req.headers['x-token'];
+    const xToken = req.header('x-token');
     const userId = await redisClient.get(`auth_${xToken}`);
     const user = await dbClient.db.collection('users').findOne({ _id: ObjectId(userId) });
     if (!user) {
