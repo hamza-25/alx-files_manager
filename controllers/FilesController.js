@@ -155,6 +155,7 @@ const FilesController = {
     }
     await dbClient.db.collection('files').updateOne({ _id: ObjectId(id) }, { $set: { isPublic: true } });
     file = await dbClient.db.collection('files').findOne({ _id: ObjectId(id), userId: ObjectId(userId) });
+    console.log(file);
     return res.status(200).json(file);
   },
   putUnpublish: async (req, res) => {
@@ -171,6 +172,7 @@ const FilesController = {
     }
     await dbClient.db.collection('files').updateOne({ _id: ObjectId(id) }, { $set: { isPublic: false } });
     file = await dbClient.db.collection('files').findOne({ _id: ObjectId(id), userId: ObjectId(userId) });
+    console.log(file);
     return res.status(200).json(file);
   },
 };
