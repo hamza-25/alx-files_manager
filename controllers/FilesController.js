@@ -185,6 +185,23 @@ const FilesController = {
       parentId: file.parentId,
     });
   },
+  getFile: async (req, res) => {
+    const { id } = req.params;
+    const xToken = req.headers['x-token'];
+    const userId = await redisClient.get(`auth_${xToken}`);
+    const user = await dbClient.db.collection('users').findOne({ _id: ObjectId(userId) });
+    if (!user) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+    const file = await dbClient.db.collection('files').findOne({ _id: ObjectId(id), userId: ObjectId(userId) });
+    if (!file) {
+      return res.status(404).json({ error: 'Not found' });
+    }
+    if (file.type === 'folder') {
+      return res.status(400).json({ error: 'A folder doesn\'t have content' });
+    }
+    return res.status(200).send(fs.readFileSync(file.localPath, 'utf-8'));
+  },
 };
 
 module.exports = FilesController;
