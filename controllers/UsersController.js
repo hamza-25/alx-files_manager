@@ -46,4 +46,5 @@ const UsersController = {
     res.json({ id: user._id, email: user.email });
   },
 };
+
 module.exports = UsersController;
