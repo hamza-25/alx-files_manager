@@ -25,7 +25,7 @@ const FilesController = {
       const parentId = req.body.parentId ? req.body.parentId : 0;
       const isPublic = req.body.isPublic ? req.body.isPublic : false;
 
-      const user = await dbClient.client.db().collection('users').findOne({ _id: ObjectId(userId) });
+      const user = await dbClient.db.collection('users').findOne({ _id: ObjectId(userId) });
 
       if (!user) {
         return res.status(401).json({ error: 'Unauthorized' });
@@ -43,7 +43,7 @@ const FilesController = {
       }
 
       if (parentId !== 0) {
-        const parentExists = await dbClient.client.db().collection('files').findOne({ _id: ObjectId(parentId) });
+        const parentExists = await dbClient.db.collection('files').findOne({ _id: ObjectId(parentId) });
         if (!parentExists) {
           res.status(400).json({ error: 'Parent not found' });
         }
@@ -53,7 +53,7 @@ const FilesController = {
         }
       }
       if (type === 'folder') {
-        const newFolder = await dbClient.client.db().collection('files').insertOne({
+        const newFolder = await dbClient.db.collection('files').insertOne({
           userId: user._id,
           name,
           type,
@@ -71,7 +71,7 @@ const FilesController = {
       }
       const path = process.env.FOLDER_PATH ? process.env.FOLDER_PATH : '/tmp/files_manager';
       const fileName = uuidv4();
-      const newFile = await dbClient.client.db().collection('files').insertOne({
+      const newFile = await dbClient.db.collection('files').insertOne({
         userId: user._id,
         name,
         type,
@@ -99,11 +99,11 @@ const FilesController = {
     const { id } = req.params;
     const xToken = req.headers['x-token'];
     const userId = await redisClient.get(`auth_${xToken}`);
-    const user = await dbClient.client.db().collection('users').findOne({ _id: ObjectId(userId) });
+    const user = await dbClient.db.collection('users').findOne({ _id: ObjectId(userId) });
     if (!user) {
       return res.status(401).json({ error: 'Unauthorized' });
     }
-    const file = await dbClient.client.db().collection('files').findOne({ _id: ObjectId(id), userId: ObjectId(userId) });
+    const file = await dbClient.db.collection('files').findOne({ _id: ObjectId(id), userId: ObjectId(userId) });
     console.log(file);
     if (!file) {
       return res.status(404).json({ error: 'Not found' });
@@ -115,7 +115,7 @@ const FilesController = {
       const { parentId } = req.params;
       const xToken = req.headers['x-token'];
       if (parentId) {
-        const file = await dbClient.client.db().collection('files').findOne({ parentId });
+        const file = await dbClient.db.collection('files').findOne({ parentId });
 
         if (!file) {
           return res.status(404).json({ error: 'File not found' });
@@ -129,13 +129,13 @@ const FilesController = {
         return res.status(401).json({ error: 'Unauthorized' });
       }
 
-      const user = await dbClient.client.db().collection('users').findOne({ _id: ObjectId(userId) });
+      const user = await dbClient.db.collection('users').findOne({ _id: ObjectId(userId) });
       if (!user) {
         return res.status(401).json({ error: 'Unauthorized' });
       }
 
       // Find all files
-      const files = await dbClient.client.db().collection('files').find({}).toArray();
+      const files = await dbClient.db.collection('files').find({}).toArray();
       return res.status(200).json(files);
     } catch (error) {
       return res.status(500).json({ error: 'Internal server error' });

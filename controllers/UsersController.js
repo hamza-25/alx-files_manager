@@ -28,7 +28,7 @@ const UsersController = {
     }
 
     try {
-      const newUser = await dbClient.client.db().collection('users').insertOne({ email, password: sha1(password) });
+      const newUser = await dbClient.db.collection('users').insertOne({ email, password: sha1(password) });
       res.status(201).json({ id: newUser.insertedId, email: newUser.ops[0].email });
       return;
     } catch (error) {
@@ -38,7 +38,7 @@ const UsersController = {
   getMe: async (req, res) => {
     const xToken = req.headers['x-token'];
     const userId = await redisClient.get(`auth_${xToken}`);
-    const user = await dbClient.client.db().collection('users').findOne({ _id: ObjectId(userId) });
+    const user = await dbClient.db.collection('users').findOne({ _id: ObjectId(userId) });
     if (!user) {
       res.status(401).json({ error: 'Unauthorized' });
       return;

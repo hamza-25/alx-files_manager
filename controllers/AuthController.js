@@ -11,7 +11,7 @@ const AuthController = {
     const hashPassword = sha1(Buffer.from(token, 'base64').toString().split(':')[1]);
     const generateToken = uuidv4();
     try {
-      const user = await dbClient.client.db().collection('users').findOne({ email });
+      const user = await dbClient.db.collection('users').findOne({ email });
 
       if (!user) {
         return res.status(401).json({ error: 'Unauthorized' });
@@ -31,7 +31,7 @@ const AuthController = {
   getDisconnect: async (req, res) => {
     const xToken = req.headers['x-token'];
     const userId = await redisClient.get(`auth_${xToken}`);
-    const user = await dbClient.client.db().collection('users').findOne({ _id: ObjectId(userId) });
+    const user = await dbClient.db.collection('users').findOne({ _id: ObjectId(userId) });
     if (!user) {
       res.status(401).json({ error: 'Unauthorized' });
       return;
