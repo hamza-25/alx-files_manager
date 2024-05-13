@@ -7,7 +7,7 @@ const redisClient = require('../utils/redis');
 const AuthController = {
   getConnect: async (req, res) => {
     const token = req.header('Authorization').split(' ')[1];
-    if ( !token ){
+    if (!token) {
       return res.status(401).json({ error: 'Unauthorized' });
     }
     const email = Buffer.from(token, 'base64').toString().split(':')[0];
