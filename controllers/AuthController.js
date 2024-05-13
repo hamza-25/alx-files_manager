@@ -1,6 +1,5 @@
 const sha1 = require('sha1');
 const { v4: uuidv4 } = require('uuid');
-const { ObjectId } = require('mongodb');
 const dbClient = require('../utils/db');
 const redisClient = require('../utils/redis');
 
@@ -28,7 +27,7 @@ const AuthController = {
       await redisClient.set(key, user._id.toString(), (60 * 60 * 24));
     } catch (error) {
       console.error(error);
-      res.status(500).json({ error: 'Internal Server Erro' });
+      res.status(500).json({ error: 'Internal Server Error' });
     }
     return res.status(200).json({ token: generateToken });
   },
