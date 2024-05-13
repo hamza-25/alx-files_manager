@@ -1,4 +1,4 @@
-const sha1 = require('sha1');
+const sha1 = require('SHA1');
 const { ObjectId } = require('mongodb');
 const dbClient = require('../utils/db');
 const redisClient = require('../utils/redis');
