@@ -187,19 +187,47 @@ const FilesController = {
     });
   },
   getFile: async (req, res) => {
-    const { id } = req.params;
-    const file = await dbClient.db.collection('files').findOne({
-      _id: ObjectId(id),
-    });
-    if (!file || file.isPublic === false || !fs.existsSync(file.localPath)) {
+    // const { id } = req.params;
+    // const file = await dbClient.db.collection('files').findOne({
+    //   _id: ObjectId(id),
+    // });
+    // if (!file || file.isPublic === false || !fs.existsSync(file.localPath)) {
+    //   return res.status(404).json({ error: 'Not found' });
+    // }
+    // if (file.type === 'folder') {
+    //   return res.status(400).json({ error: 'A folder doesn\'t have content' });
+    // }
+    // const data = await fs.readFile(file.localPath);
+    // const mimeType = mime.contentType(document.name);
+    // return res.header('Content-Type', mimeType).status(200).send(data);
+    const id = req.params.id ? req.params.id : null;
+    const document = await dbClient.db.collection('files').findOne({ _id: ObjectId(id) });
+    const xToken = req.headers['x-token'];
+    const userId = await redisClient.get(`auth_${xToken}`);
+
+    if (!document) {
       return res.status(404).json({ error: 'Not found' });
     }
-    if (file.type === 'folder') {
+    if (!document || (!document.isPublic && (document.userId.toString() !== userId))) {
+      return res.status(404).json({ error: 'Not found' });
+    }
+    if (document.type === 'folder') {
       return res.status(400).json({ error: 'A folder doesn\'t have content' });
     }
-    const data = await fs.readFile(file.localPath);
-    const mimeType = mime.contentType(file.name);
-    return res.header('Content-Type', mimeType).status(200).send(data);
+    // check file exists or not
+    try {
+      fs.accessSync(document.localPath, fs.constants.F_OK);
+    } catch (err) {
+      return res.status(404).json({ error: 'Not found' });
+    }
+    await fs.readFile(document.localPath, 'utf-8', (err, content) => {
+      if (err) {
+        throw new Error(err);
+      }
+      const mimeType = mime.contentType(document.name);
+      return res.header('Content-Type', mimeType).status(200).send(content);
+    });
+    // need return value to pass eslint
   },
 };
 
