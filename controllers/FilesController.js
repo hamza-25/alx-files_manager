@@ -154,13 +154,8 @@ const FilesController = {
       return res.status(404).json({ error: 'Not found' });
     }
     await dbClient.db.collection('files').updateOne({ _id: ObjectId(id) }, { $set: { isPublic: true } });
-    return res.status(200).json({
-      id: file._id,
-      name: file.name,
-      type: file.type,
-      isPublic: true,
-      parentId: file.parentId,
-    });
+    file = await dbClient.db.collection('files').findOne({ _id: ObjectId(id), userId: ObjectId(userId) });
+    return res.status(200).json(file);
   },
   putUnpublish: async (req, res) => {
     const { id } = req.params;
@@ -175,13 +170,8 @@ const FilesController = {
       return res.status(404).json({ error: 'Not found' });
     }
     await dbClient.db.collection('files').updateOne({ _id: ObjectId(id) }, { $set: { isPublic: false } });
-    return res.status(200).json({
-      id: file._id,
-      name: file.name,
-      file: file.type,
-      isPublic: false,
-      parentId: file.parentId,
-    });
+    file = await dbClient.db.collection('files').findOne({ _id: ObjectId(id), userId: ObjectId(userId) });
+    return res.status(200).json(file);
   },
 };
 
