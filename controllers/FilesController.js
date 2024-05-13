@@ -3,11 +3,11 @@ const { v4: uuidv4 } = require('uuid');
 const fs = require('fs');
 const path = require('path');
 const mime = require('mime-types');
-const Queue = require('bull');
+// const Queue = require('bull');
 const dbClient = require('../utils/db');
 const redisClient = require('../utils/redis');
 
-const fileQueue = new Queue('thumbnails');
+// const fileQueue = new Queue('thumbnails');
 
 function writeFile(filePath, content) {
   const directory = path.dirname(filePath);
@@ -64,9 +64,9 @@ const FilesController = {
           parentId,
           isPublic,
         });
-        fileQueue.add({
-          userId: user.inserteId.toString(), fileId: newFolder.inserteId.toString(),
-        });
+        // fileQueue.add({
+        //   userId: user.inserteId.toString(), fileId: newFolder.inserteId.toString(),
+        // });
         return res.status(201).json({
           id: newFolder.ops[0]._id,
           userId: user._id.toString(),
@@ -90,7 +90,7 @@ const FilesController = {
       const content = Buffer.from(data, 'base64').toString('utf-8');
       // write file , create path if not exists
       writeFile(`${path}/${fileName}`, content);
-      fileQueue.add({ userId: user.inserteId.toString(), fileId: newFile.inserteId.toString() });
+      // fileQueue.add({ userId: user.inserteId.toString(), fileId: newFile.inserteId.toString() });
       return res.status(201).json({
         id: newFile.ops[0]._id,
         userId: user._id.toString(),
