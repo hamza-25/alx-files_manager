@@ -28,7 +28,7 @@ const AuthController = {
       await redisClient.set(key, user._id.toString(), (60 * 60 * 24));
     } catch (error) {
       console.error(error);
-      res.status(500).json({ error: 'Internal Server Error' });
+      res.status(500).json({ error: 'Internal Server Erro' });
     }
     return res.status(200).json({ token: generateToken });
   },
