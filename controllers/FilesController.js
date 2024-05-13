@@ -22,7 +22,7 @@ const FilesController = {
       const name = req.body ? req.body.name : null;
       const type = req.body ? req.body.type : null;
       const data = req.body ? req.body.data : '';
-      const parentId = req.body.parentId ? req.body.parentId : -1;
+      const parentId = req.body.parentId ? req.body.parentId : -1; // why -1 it should default 0
       const isPublic = req.body.isPublic ? req.body.isPublic : false;
 
       const user = await dbClient.db.collection('users').findOne({ _id: ObjectId(userId) });
@@ -183,6 +183,35 @@ const FilesController = {
       file: file.type,
       isPublic: false,
       parentId: file.parentId,
+    });
+  },
+  getFile: async (req, res) => {
+    const id = req.params.id ? req.params.id : null;
+    const document = await dbClient.db.collection('files').findOne({ _id: ObjectId(id) });
+    const xToken = req.headers['x-token'];
+    const userId = await redisClient.get(`auth_${xToken}`);
+
+    if (!document) {
+      return res.status(404).json({ error: 'Not found' });
+    }
+    if (!document || (!document.isPublic && (document.userId.toString() !== userId))) {
+      return res.status(404).json({ error: 'Not found' });
+    }
+    if (document.type === 'folder') {
+      return res.status(400).json({ error: 'A folder doesn\'t have content' });
+    }
+    // check file exists or not
+    try {
+      fs.accessSync(document.localPath, fs.constants.F_OK);
+    } catch (err) {
+      return res.status(404).json({ error: 'Not found' });
+    }
+    fs.readFile(document.localPath, 'utf8', (err, content) => {
+      if (err) {
+        throw new Error(err);
+      }
+      // return content;
+      return res.status(200).json({ message: content });
     });
   },
 };
