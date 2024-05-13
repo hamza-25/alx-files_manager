@@ -6,7 +6,7 @@ const redisClient = require('../utils/redis');
 
 const AuthController = {
   getConnect: async (req, res) => {
-    const token = req.headers.authorization.split(' ')[1];
+    const token = req.headers.Authorization.split(' ')[1];
     const email = Buffer.from(token, 'base64').toString().split(':')[0];
     const hashPassword = sha1(Buffer.from(token, 'base64').toString().split(':')[1]);
     const generateToken = uuidv4();

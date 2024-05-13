@@ -23,7 +23,7 @@ const FilesController = {
       const name = req.body ? req.body.name : null;
       const type = req.body ? req.body.type : null;
       const data = req.body ? req.body.data : '';
-      const parentId = req.body.parentId ? req.body.parentId : -1; // why -1 it should default 0
+      const parentId = req.body.parentId ? req.body.parentId : 0;
       const isPublic = req.body.isPublic ? req.body.isPublic : false;
 
       const user = await dbClient.db.collection('users').findOne({ _id: ObjectId(userId) });
@@ -43,7 +43,7 @@ const FilesController = {
         res.status(400).json({ error: 'Missing data' });
       }
 
-      if (parentId !== -1) {
+      if (parentId !== 0) {
         const parentExists = await dbClient.db.collection('files').findOne({ _id: ObjectId(parentId) });
         if (!parentExists) {
           res.status(400).json({ error: 'Parent not found' });
@@ -187,47 +187,30 @@ const FilesController = {
     });
   },
   getFile: async (req, res) => {
-    // const { id } = req.params;
-    // const file = await dbClient.db.collection('files').findOne({
-    //   _id: ObjectId(id),
-    // });
-    // if (!file || file.isPublic === false || !fs.existsSync(file.localPath)) {
-    //   return res.status(404).json({ error: 'Not found' });
-    // }
-    // if (file.type === 'folder') {
-    //   return res.status(400).json({ error: 'A folder doesn\'t have content' });
-    // }
-    // const data = await fs.readFile(file.localPath);
-    // const mimeType = mime.contentType(document.name);
-    // return res.header('Content-Type', mimeType).status(200).send(data);
-    const id = req.params.id ? req.params.id : null;
-    const document = await dbClient.db.collection('files').findOne({ _id: ObjectId(id) });
-    const xToken = req.headers['x-token'];
-    const userId = await redisClient.get(`auth_${xToken}`);
-
-    if (!document) {
-      return res.status(404).json({ error: 'Not found' });
-    }
-    if (!document || (!document.isPublic && (document.userId.toString() !== userId))) {
-      return res.status(404).json({ error: 'Not found' });
-    }
-    if (document.type === 'folder') {
-      return res.status(400).json({ error: 'A folder doesn\'t have content' });
-    }
-    // check file exists or not
-    try {
-      fs.accessSync(document.localPath, fs.constants.F_OK);
-    } catch (err) {
-      return res.status(404).json({ error: 'Not found' });
-    }
-    await fs.readFile(document.localPath, 'utf-8', (err, content) => {
-      if (err) {
-        throw new Error(err);
-      }
-      const mimeType = mime.contentType(document.name);
-      return res.header('Content-Type', mimeType).status(200).send(content);
+    const { id } = req.params;
+    const file = await dbClient.db.collection('files').findOne({
+      _id: ObjectId(id),
     });
-    // need return value to pass eslint
+    if (!file || !fs.existsSync(file.localPath)) {
+      return res.status(404).json({ error: 'Not found' });
+    }
+    if (file.type === 'folder') {
+      return res.status(400).json({ error: "A folder doesn't have content" });
+    }
+    if (file.isPublic === false) {
+      const xToken = req.headers['x-token'];
+      const userId = await redisClient.get(`auth_${xToken}`);
+      const user = await dbClient.db.collection('users').findOne({ _id: ObjectId(userId) });
+      if (!user || file.userId.toString() !== user._id.toString()) {
+        return res.status(404).json({ error: 'Not found' });
+      }
+      const data = await fs.readFile(file.localPath);
+      const mimeType = mime.contentType(file.name);
+      return res.header('Content-Type', mimeType).status(200).send(data);
+    }
+    const data = await fs.readFile(file.localPath);
+    const mimeType = mime.contentType(file.name);
+    return res.header('Content-Type', mimeType).status(200).send(data);
   },
 };
 
