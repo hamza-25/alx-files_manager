@@ -159,8 +159,8 @@ const FilesController = {
       name: file.name,
       type: file.type,
       isPublic: true,
-      parentId: file.parentId
-	});
+      parentId: file.parentId,
+    });
   },
   putUnpublish: async (req, res) => {
     const { id } = req.params;
@@ -180,7 +180,7 @@ const FilesController = {
       name: file.name,
       file: file.type,
       isPublic: false,
-      parentId: file.parentId 
+      parentId: file.parentId,
     });
   },
 };
