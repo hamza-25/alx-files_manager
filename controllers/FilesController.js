@@ -200,7 +200,7 @@ const FilesController = {
     if (file.type === 'folder') {
       return res.status(400).json({ error: "A folder doesn't have content" });
     }
-    if (file.isPublic === false ) {
+    if (file.isPublic === false) {
       if (!user || file.userId !== user._id) {
         return res.status(404).json({ error: 'Not found' });
       }
