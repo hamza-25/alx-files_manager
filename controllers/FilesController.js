@@ -195,10 +195,15 @@ const FilesController = {
   },
   getFile: async (req, res) => {
     const { id } = req.params;
+    const size = req.query.size ? req.query.size : null;
     const file = await dbClient.db.collection('files').findOne({
       _id: ObjectId(id),
     });
-    if (!file || !fs.existsSync(file.localPath)) {
+    let filePath = `${file.localPath}`;
+    if (size) {
+      filePath = `${file.localPath}_${size}`;
+    }
+    if (!file || !fs.existsSync(filePath)) {
       return res.status(404).json({ error: 'Not found' });
     }
     if (file.type === 'folder') {
@@ -211,11 +216,11 @@ const FilesController = {
       if (!user || file.userId.toString() !== user._id.toString()) {
         return res.status(404).json({ error: 'Not found' });
       }
-      const data = await fs.readFile(file.localPath);
+      const data = await fs.readFile(filePath);
       const mimeType = mime.contentType(file.name);
       return res.header('Content-Type', mimeType).status(200).send(data);
     }
-    const data = await fs.readFile(file.localPath);
+    const data = await fs.readFile(filePath);
     const mimeType = mime.contentType(file.name);
     return res.header('Content-Type', mimeType).status(200).send(data);
   },
