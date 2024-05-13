@@ -21,7 +21,7 @@ const AuthController = {
         return res.status(401).json({ error: 'Unauthorized' });
       }
       const key = `auth_${generateToken}`;
-      redisClient.set(key, user._id.toString(), (60 * 60 * 24));
+      redisClient.set(key, user._id.toString(), 'EX', (60 * 60 * 24));
     } catch (error) {
       console.error(error);
       res.status(500).json({ error: 'Internal Server Error' });
