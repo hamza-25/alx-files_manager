@@ -1,7 +1,10 @@
 const sha1 = require('sha1');
 const { ObjectId } = require('mongodb');
+const Queue = require('bull');
 const dbClient = require('../utils/db');
 const redisClient = require('../utils/redis');
+
+const userQueue = new Queue('send email');
 
 const UsersController = {
   postNew: async (req, res) => {
@@ -30,6 +33,7 @@ const UsersController = {
     try {
       const newUser = await dbClient.db.collection('users').insertOne({ email, password: sha1(password) });
       res.status(201).json({ id: newUser.insertedId, email: newUser.ops[0].email });
+      userQueue.add({ userId: newUser.insertedId.toString() });
       return;
     } catch (error) {
       throw new Error('insertOne Error');
