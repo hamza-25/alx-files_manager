@@ -208,7 +208,10 @@ const FilesController = {
           const mimeType = mime.contentType(file.name);
           return res.header('Content-Type', mimeType).status(200).send(data);
         }
-       
+      } else {
+        const data = await fs.readFile(file.localPath)
+        const mimeType = mime.contentType(file.name);
+        return res.header('Content-Type', mimeType).status(200).send(data);
       }
     }
   },
