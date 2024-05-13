@@ -23,7 +23,7 @@ const FilesController = {
       const name = req.body ? req.body.name : null;
       const type = req.body ? req.body.type : null;
       const data = req.body ? req.body.data : '';
-      const parentId = req.body.parentId ? req.body.parentId : -1; // why -1 it should default 0
+      const parentId = req.body.parentId ? req.body.parentId : 0;
       const isPublic = req.body.isPublic ? req.body.isPublic : false;
 
       const user = await dbClient.db.collection('users').findOne({ _id: ObjectId(userId) });
