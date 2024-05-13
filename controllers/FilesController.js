@@ -2,9 +2,9 @@ const { ObjectId } = require('mongodb');
 const { v4: uuidv4 } = require('uuid');
 const fs = require('fs');
 const path = require('path');
+const mime = require('mime-types');
 const dbClient = require('../utils/db');
 const redisClient = require('../utils/redis');
-const mime = require('mime-types');
 
 function writeFile(filePath, content) {
   const directory = path.dirname(filePath);
@@ -23,7 +23,7 @@ const FilesController = {
       const name = req.body ? req.body.name : null;
       const type = req.body ? req.body.type : null;
       const data = req.body ? req.body.data : '';
-      const parentId = req.body.parentId ? req.body.parentId : -1;
+      const parentId = req.body.parentId ? req.body.parentId : -1; // why -1 it should default 0
       const isPublic = req.body.isPublic ? req.body.isPublic : false;
 
       const user = await dbClient.db.collection('users').findOne({ _id: ObjectId(userId) });
@@ -192,7 +192,7 @@ const FilesController = {
     const userId = await redisClient.get(`auth_${xToken}`);
     const user = await dbClient.db.collection('users').findOne({ _id: ObjectId(userId) });
     const file = await dbClient.db.collection('files').findOne({
-      _id: ObjectId(id)
+      _id: ObjectId(id),
     });
     if (!file  || !fs.existsSync(file.localPath)) {
       return res.status(404).json({ error: 'Not found' });
