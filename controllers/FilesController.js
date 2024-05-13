@@ -156,6 +156,7 @@ const FilesController = {
     await dbClient.db.collection('files').updateOne({ _id: ObjectId(id) }, { $set: { isPublic: true } });
     return res.status(200).json({
       id: file._id,
+      userId: user._id,
       name: file.name,
       type: file.type,
       isPublic: true,
