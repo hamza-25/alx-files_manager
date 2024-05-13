@@ -154,10 +154,8 @@ const FilesController = {
       return res.status(404).json({ error: 'Not found' });
     }
     await dbClient.db.collection('files').updateOne({ _id: ObjectId(id) }, { $set: { isPublic: true } });
-    file = await dbClient.db.collection('files').findOne({ _id: ObjectId(id), userId: ObjectId(userId) });
     return res.status(200).json({
       id: file._id,
-      userId: user._id,
       name: file.name,
       type: file.type,
       isPublic: true,
