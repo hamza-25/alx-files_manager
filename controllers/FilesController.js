@@ -2,9 +2,9 @@ const { ObjectId } = require('mongodb');
 const { v4: uuidv4 } = require('uuid');
 const fs = require('fs');
 const path = require('path');
+const mime = require('mime-types');
 const dbClient = require('../utils/db');
 const redisClient = require('../utils/redis');
-const mime = require('mime-types');
 
 function writeFile(filePath, content) {
   const directory = path.dirname(filePath);
@@ -189,7 +189,7 @@ const FilesController = {
   getFile: async (req, res) => {
     const { id } = req.params;
     const file = await dbClient.db.collection('files').findOne({
-      _id: ObjectId(id)
+      _id: ObjectId(id),
     });
     if (!file || file.isPublic === false || !fs.existsSync(file.localPath)) {
       return res.status(404).json({ error: 'Not found' });
@@ -197,7 +197,7 @@ const FilesController = {
     if (file.type === 'folder') {
       return res.status(400).json({ error: 'A folder doesn\'t have content' });
     }
-    const data = await fs.readFile(file.localPath)
+    const data = await fs.readFile(file.localPath);
     const mimeType = mime.contentType(file.name);
     return res.header('Content-Type', mimeType).status(200).send(data);
   },
