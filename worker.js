@@ -5,18 +5,21 @@ const fs = require('fs').promises;
 const dbClient = require('./utils/db');
 
 const fileQueue = new Queue();
+const userQueue = new Queue();
 
 fileQueue.process(async (job) => {
-  if (!job.data.fileId) {
+  const { fileId } = job.data;
+  const { userId } = job.data;
+  if (!fileId) {
     throw new Error('Missing fileId');
   }
-  if (!job.data.userId) {
+  if (!userId) {
     throw new Error('Missing userId');
   }
 
   const file = dbClient.db.collection('files').findOne({
-    _id: ObjectId(job.data.fileId),
-    userId: job.data.userId,
+    _id: ObjectId(fileId),
+    userId,
   });
   if (!file) {
     throw new Error('File not found');
@@ -31,4 +34,16 @@ fileQueue.process(async (job) => {
     fs.writeFile(`${file.localPath}_250`, thumbnail250),
     fs.writeFile(`${file.localPath}_100`, thumbnail100),
   ]);
+});
+
+userQueue.process(async (job) => {
+  const { userId } = job.data;
+  if (!userId) {
+    throw new Error('Missing userId');
+  }
+  const user = dbClient.db.collection('users').findOne({ _id: ObjectId(userId) });
+  if (!user) {
+    throw new Error('User not found');
+  }
+  console.log(`Welcome ${user.ops[0].email}!`);
 });
