@@ -175,7 +175,7 @@ const FilesController = {
       userId: user._id,
       name: file.name,
       type: file.type,
-      isPublic: true,
+      isPublic: file.isPublic, // here true
       parentId: file.parentId,
     });
   },
@@ -197,7 +197,7 @@ const FilesController = {
       userId: user._id,
       name: file.name,
       file: file.type,
-      isPublic: false,
+      isPublic: file.isPublic, // here false
       parentId: file.parentId,
     });
   },
