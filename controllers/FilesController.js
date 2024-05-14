@@ -171,8 +171,8 @@ const FilesController = {
     }
     await dbClient.db.collection('files').updateOne({ _id: ObjectId(id) }, { $set: { isPublic: true } });
     return res.status(200).json({
-      id: file._id,
-      userId: user._id,
+      id,
+      userId,
       name: file.name,
       type: file.type,
       isPublic: true,
@@ -193,8 +193,8 @@ const FilesController = {
     }
     await dbClient.db.collection('files').updateOne({ _id: ObjectId(id) }, { $set: { isPublic: false } });
     return res.status(200).json({
-      id: file._id,
-      userId: user._id,
+      id,
+      userId,
       name: file.name,
       file: file.type,
       isPublic: false,
