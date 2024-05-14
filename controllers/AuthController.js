@@ -15,20 +15,20 @@ const AuthController = {
       return res.status(401).json({ error: 'Unauthorized' });
     }
     const generateToken = uuidv4();
-    try {
-      const user = await dbClient.db.collection('users').findOne({ email });
-      if (!user) {
-        return res.status(401).json({ error: 'Unauthorized' });
-      }
-      if (hashPassword !== user.password) {
-        return res.status(401).json({ error: 'Unauthorized' });
-      }
-      const key = `auth_${generateToken}`;
-      await redisClient.set(key, user._id.toString(), (60 * 60 * 24));
-    } catch (error) {
-      // console.error(error);
-      res.status(500).json({ error: 'Internal Server Error' });
+    // try {
+    const user = await dbClient.db.collection('users').findOne({ email });
+    if (!user) {
+      return res.status(401).json({ error: 'Unauthorized' });
     }
+    if (hashPassword !== user.password) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+    const key = `auth_${generateToken}`;
+    await redisClient.set(key, user._id.toString(), (60 * 60 * 24));
+    // } catch (error) {
+    // console.error(error);
+    // res.status(500).json({ error: 'Internal Server Error' });
+    // }
     return res.status(200).json({ token: generateToken });
   },
   getDisconnect: async (req, res) => {
