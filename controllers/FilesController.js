@@ -112,7 +112,7 @@ const FilesController = {
       return res.status(401).json({ error: 'Unauthorized' });
     }
     const file = await dbClient.db.collection('files').findOne({ _id: ObjectId(id), userId: ObjectId(userId) });
-    console.log(file);
+    // console.log(file);
     if (!file) {
       return res.status(404).json({ error: 'Not found' });
     }
