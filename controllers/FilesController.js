@@ -1,4 +1,3 @@
-/* eslint-disable import/no-named-as-default */
 const { ObjectId } = require('mongodb');
 const { v4: uuidv4 } = require('uuid');
 const fs = require('fs');
