@@ -33,7 +33,7 @@ const UsersController = {
     try {
       const newUser = await dbClient.db.collection('users').insertOne({ email, password: sha1(password) });
       res.status(201).json({ id: newUser.insertedId, email: newUser.ops[0].email });
-      userQueue.add({ userId: newUser.insertedId.toString() });
+      userQueue.add({ userId: newUser.insertedId });
       return;
     } catch (error) {
       throw new Error('insertOne Error');
