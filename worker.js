@@ -4,8 +4,8 @@ const imageThumbnail = require('image-thumbnail');
 const fs = require('fs').promises;
 const dbClient = require('./utils/db');
 
-const fileQueue = new Queue();
-const userQueue = new Queue();
+const fileQueue = new Queue('thumbnails');
+const userQueue = new Queue('send email');
 
 fileQueue.process(async (job) => {
   const { fileId } = job.data;
