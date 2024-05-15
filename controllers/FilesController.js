@@ -116,15 +116,7 @@ const FilesController = {
     if (!file) {
       return res.status(404).json({ error: 'Not found' });
     }
-    // return res.json(file); // need change _id to id
-    return res.json({
-      id,
-      userId: user._id,
-      name: file.name,
-      type: file.type,
-      isPublic: file.isPublic,
-      parentId: file.parentId,
-    }); // need change _id to id
+    return res.json(file); // need change _id to id
   },
   getIndex: async (req, res) => {
     try {
